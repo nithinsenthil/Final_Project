@@ -1,4 +1,5 @@
 #The class(es) can be written here
+'''
 class Game:
 
     def __init__(self):
@@ -35,7 +36,7 @@ class Board(Execution):
             dupeBoard.append(i)
 
         return dupeBoard
-class Player:
+class Computer_player:
 
     def __init__(self, board, letter):
         super().__init__(board)
@@ -109,3 +110,4 @@ class Execution:
         print('Do you want to play again? (yes or no)')
         return input().lower().startswith('y')
 
+'''
