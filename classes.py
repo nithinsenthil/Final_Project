@@ -133,14 +133,6 @@ class Tictactoe(): #This class represents a game.
         self.nextPlayer = firstPlayer
         self.winner = None
         self.board = Board()
-    def move(self, x, y):
-        #Validate that the position exists and is free
-        if not (x in range(3) and y in range(3)): raise ValueError('Position out of range')
-        if self.board.state[x][y] != None: raise ValueError('Position is occupied')
-        #Set the board state, check for winners, and change the next player
-        self.board.state[x][y] = self.nextPlayer
-        self.winner = self.board.getWinner
-        self.nextPlayer = 'X' if self.nextPlayer == 'O' else 'X'
 
 class Player(): #This class represents a generic player. This will be extended for human players, and could theoretically be extended to computer players.
     def __init__(self, symbol):
