@@ -4,7 +4,7 @@ import os
 
 class Board(): #This class represents a game board
     def __init__(self):
-        self.state = [[None] * 3] * 3   #We cannot just leave it empty because then we'll have index out of bounds exceptions to deal with elsewhere
+        self.state = [[None] * 3, [None] * 3, [None] * 3]   #We cannot just leave it empty because then we'll have index out of bounds exceptions to deal with elsewhere. We also have to repeat the inner [None] * 3 rather than doing [[None] * 3] * 3 because the 3 lists will actually be references to the same list, and updating one space will update the entire row.
     def getWinner(self):
         #These will be set to True upon encountering 3 in a row from X or O
         xWins = False
@@ -101,10 +101,15 @@ class Board(): #This class represents a game board
             [[' 8 '], ['5/I'], ['2/K']],
             [[' 9 '], ['6/O'], ['3/L']]
         ]
+
+        #Place each character of the graphic in the appropraite place
         def placeGraphic(graphic, cornerX, cornerY):
             for x in range(len(graphic[0])):
                 for y in range(len(graphic)):
-                    result [cornerX+x][cornerY+y] = graphic[x][y]
+                    rowAsList = list(result[cornerY+y])
+                    rowAsList[cornerX+x] = graphic[y][x]
+                    row = "".join(rowAsList)
+                    result[cornerY + y] = row
 
         #Go through all positions on the board and place the graphics as needed
         #WARNING: The method of determining which indexes to use place the graphics relies on the board and graphics being a specific size. If you change either of those, you must redo the math. More details on what to redo in the comments
@@ -149,7 +154,7 @@ class Player(): #This class represents a generic player. This will be extended f
 
 class HumanPlayer(Player):  #This extends the Player class, and focuses specifically on creating a human player by providing input methods
     def __init__(self, symbol):
-        super(symbol)
+        super().__init__(symbol)
         userInput = input('Name for player %s: ' % self.symbol)
         self.name = userInput if userInput != '' else self.symbol
     def move(self, game):
@@ -158,7 +163,6 @@ class HumanPlayer(Player):  #This extends the Player class, and focuses specific
         #Print information
         print(f'{self.name}\'s turn:')
         print(game.board)
-        print()
 
         #Get the desired position and perform the move
         translationTable = {    #A table to translate user inputs to tuples representing x and y locations
@@ -179,7 +183,11 @@ class HumanPlayer(Player):  #This extends the Player class, and focuses specific
             'l': (2, 2)
         }
         while True:
-            move = input('%s, what is your next move? ' % (player)).lower()[0]
+            move = input('%s, what is your next move? ' % self.name)
+            if move == '':
+                print('Error: Please select a move')
+                continue
+            move = move[0].lower()
             if move not in translationTable.keys():
                 print('Error: Invalid move')
                 continue
@@ -189,3 +197,5 @@ class HumanPlayer(Player):  #This extends the Player class, and focuses specific
                 continue
             break
         game.board.state[x][y] = self.symbol
+        game.winner = game.board.getWinner()
+        game.nextPlayer = 'O' if game.nextPlayer == 'X' else 'X'

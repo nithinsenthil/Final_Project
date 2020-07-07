@@ -15,13 +15,20 @@ print('-------------Created by Nithin Senthil and Bruce Blore-------------')
 #Initiate players and score
 xPlayer = HumanPlayer('X')
 oPlayer = HumanPlayer('O')
-firstPlayer = ' '
-while firstPlayer.upper()[0] not in 'XO':
-    firstPlayer = input('Who goes first (X/O)? ')
+while True:
+    firstPlayer = input('Who goes first? (X/O) ')
+    if firstPlayer == '':
+        print('Error: Please choose a player to go first')
+        continue
+    firstPlayer = firstPlayer[0].upper()
+    if firstPlayer not in 'XO':
+        print('Error: Invalid player')
+        continue
+    break
 score = [0, 0]
 
 while True:
-    game = Tictactoe(firstPlayer)
+    game = Tictactoe(firstPlayer.upper()[0])
 
     while True:
         if game.winner != None:
@@ -41,6 +48,9 @@ while True:
         print('Hooray! %s has won the game!' % winner())
         score[0 if game.winner == 'X' else 1] += 1
 
+    #Print the scoreboard and prompt to play again, changing the first player
+    print(game.board)
     print('\nSCOREBOARD:\n%s --- %s\n%s --- %s\n' % (xPlayer, score[0], oPlayer, score[1]))
     if input('Do you want to play again? (y/n) ').lower()[0] == 'n':
         break
+    firstPlayer = 'O' if firstPlayer == 'X' else 'X'
