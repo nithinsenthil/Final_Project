@@ -1,7 +1,8 @@
 #The class(es) can be written here
 from itertools import chain
+import os
 
-class Board():
+class Board(): #This class represents a game board
     def __init__(self):
         self.state = [[None] * 3] * 3   #We cannot just leave it empty because then we'll have index out of bounds exceptions to deal with elsewhere
     def getWinner(self):
@@ -114,8 +115,14 @@ class Board():
                 elif self.state[x][y] == 'O': placeGraphic(oGraphic, 8*x, 4*y)
                 #8*x and 4*y are used for the same reason as above. x is offset by 2 and y by 1 to center them.
                 else: placeGraphic(keyGraphics[x][y], 8*x + 2, 4*y + 1)
+        #Convert the result into one string and return it
+        resultAsString = ''
+        for line in result:
+            resultAsString += line
+            resultAsString += '\n'
+        return resultAsString
 
-class Tictactoe():
+class Tictactoe(): #This class represents a game.
 
     def __init__(self, firstPlayer):
         self.nextPlayer = firstPlayer
@@ -130,63 +137,55 @@ class Tictactoe():
         self.winner = self.board.getWinner
         self.nextPlayer = 'X' if self.nextPlayer == 'O' else 'X'
 
-#The following methods are private methods not to be called from outside the class.
+class Player(): #This class represents a generic player. This will be extended for human players, and could theoretically be extended to computer players.
+    def __init__(self, symbol):
+        if symbol not in ['X', 'O']: raise ValueError('A player\'s symbol must be X or O')
+        self.symbol = symbol
+        self.name = symbol
+    def move(self):
+        raise NotImplementedError
+    def __str__(self):
+        return self.symbol if self.symbol == self.name else f'{self.symbol}:{self.name}'
 
-    def _getPlayerMove(self, player):
-        # Let the player type in his move.
-        move = ' '
-        while move not in '1 2 3 4 5 6 7 8 9'.split() or not self.__isSpaceFree(int(move)):
-            print('%s, what is your next move? (1-9)' % (player))
-            move = input()
-        return int(move)
+class HumanPlayer(Player):  #This extends the Player class, and focuses specifically on creating a human player by providing input methods
+    def __init__(self, symbol):
+        super(symbol)
+        userInput = input('Name for player %s: ' % self.symbol)
+        self.name = userInput if userInput != '' else self.symbol
+    def move(self, game):
+        os.system('cls' if os.name == 'nt' else 'clear')    #Clear the screen
 
-    def _inputPlayerLetter(self, player):
-        # Lets the player type which letter they want to be.
-        # Returns a list with the player's letter as the first item, and the computer's letter as the second.
-        letter = ''
-        while not (letter == 'X' or letter == 'O'):
-            print('%s, do you want to be X or O?' % (player))
-            letter = input().upper()
+        #Print information
+        print(f'{self.name}\'s turn:')
+        print(game.board)
+        print()
 
-        # the first element in the tuple is the player's letter, the second is the computer's letter.
-        if letter == 'X':
-            return ['X', 'O']
-        else:
-            return ['O', 'X']
-
-
-class GameController:
-    def __init__(self):
-        pass
-
-    def playAgain(self):
-        # This function returns True if the player wants to play again, otherwise it returns False.
-        print('Do you want to play again? (yes or no)')
-        return input().lower().startswith('y')
-
-    def runtictactoe(self):
-        print('Welcome to Tic Tac Toe')
-        first = input("Enter Player 1's name: ")
-        second = input("Enter player 2's name: ")
-        session = Tictactoe(first, second)
+        #Get the desired position and perform the move
+        translationTable = {    #A table to translate user inputs to tuples representing x and y locations
+            '7': (0, 0),
+            '8': (1, 0),
+            '9': (2, 0),
+            '4': (0, 1),
+            '5': (1, 1),
+            '6': (2, 1),
+            '1': (0, 2),
+            '2': (1, 2),
+            '3': (2, 2),
+            'u': (0, 1),
+            'i': (1, 1),
+            'o': (2, 1),
+            'j': (0, 2),
+            'k': (1, 2),
+            'l': (2, 2)
+        }
         while True:
-            session.run()
-            status = session.getStatus()
-            if status == 'tie':
-                print('The game is a tie!')
-            elif status == 'done':
-                winner = session.getWinner()
-                print('Hooray! %s has won the game!' % (winner))
-            elif status == 'Error':
-                print('Oh no something went wrong.')
-
-            score = session.getScore()
-            print('\nSCOREBOARD:\n%s --- %s\n%s --- %s\n' % (first, score[0], second, score[1]))
-
-            if self.playAgain():
-                session.reset()
-            else:
-                break
-
-newGame = GameController()
-newGame.runtictactoe()
+            move = input('%s, what is your next move? ' % (player)).lower()[0]
+            if move not in translationTable.keys():
+                print('Error: Invalid move')
+                continue
+            x,y = translationTable[move]
+            if game.board.state[x][y] != None:
+                print('Error: That space is not empty')
+                continue
+            break
+        game.board.state[x][y] = self.symbol
