@@ -1,6 +1,6 @@
 #The class(es) can be written here
 from itertools import chain
-import os
+#import os
 
 class Board(): #This class represents a game board
     def __init__(self):
@@ -150,7 +150,7 @@ class HumanPlayer(Player):  #This extends the Player class, and focuses specific
         userInput = input('Name for player %s: ' % self.symbol)
         self.name = userInput if userInput != '' else self.symbol
     def move(self, game):
-        os.system('cls' if os.name == 'nt' else 'clear')    #Clear the screen
+        #os.system('cls' if os.name == 'nt' else 'clear')    #Clear the screen, disabled because Pycharm doesn't like it.
 
         #Print information
         print(f'{self.name}\'s turn:')
